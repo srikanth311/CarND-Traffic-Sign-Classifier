@@ -1,0 +1,8 @@
+0 - _MyUtils.py
+1 - _MyVariables.py
+2 - _LoadData.py
+
+
+# Notes
+
+https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
