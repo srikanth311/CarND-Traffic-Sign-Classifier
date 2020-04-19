@@ -237,12 +237,15 @@ class MyPreprocessingWrapper(object):
     # noinspection PyMethodMayBeStatic
     def apply_one_hot_encoding_to_labels(self):
         num_train_label_classes = len(np.unique(self.y_train_shuffle))
+        print("train labels : {}".format(num_train_label_classes))
         self.y_train_hot = np.eye(num_train_label_classes)[self.y_train_shuffle]
 
         num_test_label_classes = len(np.unique(self.y_test_shuffle))
+        print("test labels : {}".format(num_train_label_classes))
         self.y_test_hot = np.eye(num_test_label_classes)[self.y_test_shuffle]
 
         num_valid_label_classes = len(np.unique(self.y_valid_shuffle))
+        print("valid labels : {}".format(num_train_label_classes))
         #print(num_valid_label_classes)
         self.y_valid_hot = np.eye(num_valid_label_classes)[self.y_valid_shuffle]
 
@@ -310,7 +313,7 @@ class MyPreprocessingWrapper(object):
 
 
 #if __name__ == "__main__":
-    # main_wrapper = MyPreprocessingWrapper().invoke_pre_processing()
+#    main_wrapper = MyPreprocessingWrapper.invoke_pre_processing()
     #main_wrapper.invoke_data_summary()
     #main_wrapper.preprocessing()
     ##main_wrapper.image_augmentation()

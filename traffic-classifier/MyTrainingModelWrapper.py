@@ -14,6 +14,9 @@ class MyTrainingModelWrapper(object):
     save_my_model_tf_session = None
 
     def __init__(self):
+        #mypreprocess_wrapper = MyPreprocessingWrapper()
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
         ### Invoke preprocessing of the data
         ### If preprocessing is already complete, it just loads the pickle file which has the preprocessed data.
         ### If the preprocessing results file does not exist under "/training_output" folder, it will execute the preprocessing steps.
@@ -72,7 +75,7 @@ class MyTrainingModelWrapper(object):
         ## ============================================================== ##
         filter_size, input_channels, output_channels = 5, 1, 32
         conv1_Weights = tf.Variable(tf.truncated_normal((filter_size, filter_size, input_channels, output_channels), mean=mean, stddev=standard_deviation))
-        conv1_biases = tf.Variable(tf.zeros(output_channels, 1))
+        conv1_biases = tf.Variable(tf.zeros(output_channels))
         conv1 = tf.nn.conv2d(self.features, conv1_Weights, strides = [1,1,1,1], padding = "SAME")
         conv1 = tf.nn.bias_add(conv1, conv1_biases)
 
@@ -89,7 +92,7 @@ class MyTrainingModelWrapper(object):
         ## ============================================================== ##
         filter_size, input_channels, output_channels = 5, 32, 64
         conv2_Weights = tf.Variable(tf.truncated_normal((filter_size, filter_size, input_channels, output_channels), mean=mean, stddev=standard_deviation))
-        conv2_biases = tf.Variable(tf.zeros(output_channels, 1))
+        conv2_biases = tf.Variable(tf.zeros(output_channels))
         conv2 = tf.nn.conv2d(conv1, conv2_Weights, strides=[1, 1, 1, 1], padding="SAME")
         conv2 = tf.nn.bias_add(conv2, conv2_biases)
 
@@ -108,7 +111,7 @@ class MyTrainingModelWrapper(object):
 
         filter_size, input_channels, output_channels = 5, 64, 128
         conv3_Weights = tf.Variable(tf.truncated_normal((filter_size, filter_size, input_channels, output_channels), mean=mean, stddev=standard_deviation))
-        conv3_biases = tf.Variable(tf.zeros(output_channels, 1))
+        conv3_biases = tf.Variable(tf.zeros(output_channels))
         conv3 = tf.nn.conv2d(conv2, conv3_Weights, strides=[1, 1, 1, 1], padding="SAME")
         conv3 = tf.nn.bias_add(conv3, conv3_biases)
 
@@ -262,36 +265,10 @@ class MyTrainingModelWrapper(object):
 
 
     def test(self):
-        #sess = MyTrainingModelWrapper.invoke_model()
-        #sess = tf.Session()
-        #saver = tf.train.Saver()
-        #saver.restore(sess, tf.train.latest_checkpoint('saved_models/'))
-
-        saver = tf.train.Saver()
-        saved_model_session = tf.Session()
-        saved_model_session.run(tf.global_variables_initializer())
-        saver.restore(saved_model_session, 'saved_models/lenet_model2')
-
+        sess = self.invoke_model()
         test_features, test_labels = self.X_TEST, self.Y_TEST
-        test_accuracy = saved_model_session.run(self.accuracy_operation, feed_dict={self.features:test_features, self.labels:test_labels})
+        test_accuracy = sess.run(self.accuracy_operation, feed_dict={self.features:test_features, self.labels:test_labels})
         print("Test Accuracy is :" + str(test_accuracy))
-
-        """
-        for offset in range(0, NUM_EXAMPLES, BATCH_SIZE):
-            endindex = offset + BATCH_SIZE
-            test_batch_X, test_batch_Y = self.training_data.x_test[offset:endindex], self.training_data.y_test[offset:endindex]
-            accuracy = sess.run(self.accuracy_operation, feed_dict={self.features: test_batch_X, self.labels: test_batch_Y})
-            total_accuracy += (accuracy * len(test_batch_X))
-            print(total_accuracy)
-            #if (offset // BATCH_SIZE) % 10 == 0: print(".", end="", flush=True)
-        #return total_accuracy / NUM_EXAMPLES
-        
-        #tacc = self.evaluate(self.training_data.x_test, self.training_data.y_test)
-
-        #test_features, test_labels=self.training_data.x_test, self.training_data.y_test
-        #test_accuracy = sess.run(self.accuracy_operation, feed_dict={self.features:test_features, self.labels:test_labels})
-        print("Testing Accuracy is :" + str(tacc))
-        """
 
     def predict(self, images, labels):
         session = MyTrainingModelWrapper.invoke_model()
@@ -318,9 +295,8 @@ class MyTrainingModelWrapper(object):
 
         print( '-------------------------------------------------------')
 
-    @classmethod
-    # noinspection PyMethodMayBeStatic
-    def invoke_model(cls):
+    #noinspection PyMethodMayBeStatic
+    def invoke_model(self):
         #if cls.save_my_model_tf_session is not None:
         #    print("Model already exists - just returning it.")
         #    return cls.save_my_model_tf_session
@@ -331,18 +307,16 @@ class MyTrainingModelWrapper(object):
         #else:
         #    print("Model already exists - reusing it.")
 
+        print("Loading the model from : saved_models/lenet_model2")
         model_saver = tf.train.Saver()
-        cls.save_my_model_tf_session = tf.Session()
-        cls.save_my_model_tf_session.run(tf.global_variables_initializer())
-        model_saver.restore(cls.save_my_model_tf_session, 'saved_models/lenet_model2')
+        self.save_my_model_tf_session = tf.Session()
+        self.save_my_model_tf_session.run(tf.global_variables_initializer())
+        model_saver.restore(self.save_my_model_tf_session, 'saved_models/lenet_model2')
 
-        return cls.save_my_model_tf_session
+        return self.save_my_model_tf_session
 
-
-
-#if __name__ == "__main__":
-    #mytraining_wrapper = MyTrainingModelWrapper()
-    #MyTrainingWrapper.invoke_model()
+if __name__ == "__main__":
+    mytraining_wrapper = MyTrainingModelWrapper()
     #mytraining_wrapper.invoke_model()
-    #mytraining_wrapper.test()
-    #sys.exit(0)
+    mytraining_wrapper.test()
+    sys.exit(0)

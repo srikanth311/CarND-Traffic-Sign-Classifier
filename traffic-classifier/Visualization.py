@@ -67,7 +67,7 @@ class Visualization(object):
             if len(image_data[label_category]) < 5: # We just need few (5) images to show.
                 image_data[label_category].append(image)
 
-        print("Image Data length is :: {} ".format(len(image_data)))
+        #print("Image Data length is :: {} ".format(len(image_data)))
 
         idx = 0
         fig, ax = plt.subplots(43, 1, figsize=(200, 60))
